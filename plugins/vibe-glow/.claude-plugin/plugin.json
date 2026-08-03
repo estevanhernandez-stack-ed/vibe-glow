@@ -1,0 +1,13 @@
+{
+  "name": "vibe-glow",
+  "version": "0.1.0",
+  "description": "Repeatable multi-stage UI beautification campaigns for any app. Four gated stages as slash commands — identity (invent the design language, stress-tested against user theming), audit (five Opus review lenses plus a skeptic pass that refutes findings before they become work), wave (findings-driven fix batches with re-capture and re-review until surfaces measure clean), reveal (the flagship release). Evidence adapters for WinUI (PowerShell window capture) and web (Playwright). State-aware router; per-repo campaign state committed alongside the code. Minimal first cut — evolve machinery arrives after the dogfood run earns it.",
+  "author": {
+    "name": "626Labs LLC",
+    "url": "https://github.com/estevanhernandez-stack-ed/vibe-glow"
+  },
+  "homepage": "https://github.com/estevanhernandez-stack-ed/vibe-glow#readme",
+  "repository": "https://github.com/estevanhernandez-stack-ed/vibe-glow",
+  "license": "MIT",
+  "keywords": ["vibe-glow", "vibe-coding", "ui-review", "design-language", "beautification", "claude-code-plugin", "626labs"]
+}
