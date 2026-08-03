@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "app": "626-mod-launcher",
+  "stage": "audit",
+  "adapter": "winui-powershell",
+  "evidenceDir": "docs/ui-evidence",
+  "designLanguagePath": "docs/superpowers/specs/2026-08-03-launcher-design-language.md",
+  "findingsRegisterPath": "docs/superpowers/research/2026-08-03-ui-audit-findings.md",
+  "themes": ["default", "obsidian", "matrix"],
+  "invariants": [
+    "Color belongs to the theme engine — surfaces must not hardcode palette values. Findings that require breaking the theme token contract are refused; contract extensions must be optional-with-fallback."
+  ],
+  "waves": [
+    { "id": 1, "name": "style-consolidation", "status": "open", "findings": ["F-001", "F-004"] }
+  ]
+}
