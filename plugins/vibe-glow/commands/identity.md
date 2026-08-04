@@ -35,7 +35,9 @@ enumerate fresh. Otherwise enumerate the relevant surfaces into a committed
 checklist. Scope rule: an app-wide campaign captures every reachable
 surface; a scoped campaign captures the surfaces in `scope.surfaces` plus
 one hop of visual neighbors — the surfaces a user reaches the area from —
-as context for the consistency lens. Capture per the adapter README, under
+as context for the consistency lens. Scoped campaigns: record the in-scope
+row names into `scope.surfaces` in `.vibe-glow/state.json` now — the scoped
+audit reads exactly that key. Capture per the adapter README, under
 the app's current default look plus 1–2 hostile user themes when theming
 exists. Name files `NN-<surface>--<theme>.png`.
 
