@@ -1,0 +1,8 @@
+{
+  "app": "example-app",
+  "processName": "ExampleApp",
+  "routes": [
+    { "surface": "06-settings-dialog", "invoke": ["Settings"], "close": ["Cancel"] },
+    { "surface": "07-about-dialog", "invoke": ["Help", "About"], "close": ["OK"] }
+  ]
+}

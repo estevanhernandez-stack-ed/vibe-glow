@@ -18,8 +18,13 @@ else {
 $cmdDir = Join-Path $root 'commands'
 if (Test-Path $cmdDir) {
     foreach ($f in Get-ChildItem $cmdDir -Filter '*.md') {
-        $head = (Get-Content $f.FullName -TotalCount 5) -join "`n"
-        if ($head -notmatch '(?s)^---.*description:') { $fail += "$($f.Name) missing 'description:' frontmatter" }
+        $lines = @(Get-Content $f.FullName -TotalCount 10)
+        $ok = $false
+        if ($lines.Count -ge 3 -and $lines[0] -eq '---') {
+            $end = [Array]::IndexOf($lines, '---', 1)
+            if ($end -gt 1) { $ok = ($lines[1..($end - 1)] -join "`n") -match '(?m)^description:' }
+        }
+        if (-not $ok) { $fail += "$($f.Name) missing 'description:' inside its frontmatter block" }
     }
 }
 
@@ -31,6 +36,22 @@ if (Test-Path $example) {
             if ($p -cnotmatch '^[a-z][a-zA-Z0-9]*$') { $fail += "state.example.json key '$p' is not camelCase" }
         }
     } catch { $fail += "state.example.json does not parse: $_" }
+}
+
+function Test-CamelKeys($obj, $where) {
+    $bad = @()
+    foreach ($p in $obj.PSObject.Properties.Name) {
+        if ($p -cnotmatch '^[a-z][a-zA-Z0-9]*$') { $bad += "$where key '$p' is not camelCase" }
+    }
+    return $bad
+}
+$routes = Join-Path $root 'docs' 'ui-routes.example.json'
+if (Test-Path $routes) {
+    try {
+        $r = Get-Content $routes -Raw | ConvertFrom-Json
+        $fail += Test-CamelKeys $r 'ui-routes.example.json'
+        foreach ($route in $r.routes) { $fail += Test-CamelKeys $route 'ui-routes.example.json routes[]' }
+    } catch { $fail += "ui-routes.example.json does not parse: $_" }
 }
 
 foreach ($a in 'winui-powershell', 'web-playwright') {

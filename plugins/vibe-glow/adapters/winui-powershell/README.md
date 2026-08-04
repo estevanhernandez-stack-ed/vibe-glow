@@ -1,34 +1,58 @@
 # winui-powershell adapter
 
-Window capture for WinUI 3 / Win32 apps via PrintWindow with
-PW_RENDERFULLCONTENT (composed windows render black without it). Captures
-are window-sized PNGs named `NN-<surface>--<theme>.png` into the campaign's
-`evidenceDir`.
+Window capture for Windows-native apps — WinUI 3, WPF, and Win32 alike
+(PrintWindow and UIA cover all three; the id keeps its original name so
+recorded campaign state stays valid). Captures are window-sized PNGs named
+`NN-<surface>--<theme>.png` in the campaign's `evidenceDir`.
 
 ## Modes
 
-- **Single** (automatable — main window and navigable views):
-  `pwsh capture.ps1 -ProcessName <exe-basename> -OutDir <evidenceDir> -Surface main-window -Theme obsidian`
-- **Watch** (guided session — modal dialogs need a human driver):
+- **UIA (preferred where a route map exists):**
+  `pwsh capture.ps1 -Uia -RouteMap docs/ui-routes.json -OutDir <evidenceDir> -Theme obsidian`
+  Agent-driven: opens each routed surface itself (invoke by automation id
+  or name), captures, closes via UIA — never Esc, never keyboard. Routes
+  that fail resolve are reported and skipped, not fatal. See
+  `../../docs/ui-routes.example.json` for the route-map shape; author
+  routes from a `-DumpUia` tree.
+- **Watch (humans, and states UIA can't reach):**
   `pwsh capture.ps1 -Watch -OutDir <evidenceDir> -Theme obsidian`
-  The driver walks a capture checklist, opens each dialog, presses F8;
-  Esc ends the session. Window titles auto-label; rename outliers after.
+  F8 captures the foreground window; Esc ends the session. Close dialogs
+  with the mouse — Esc kills the watcher.
+- **Single (one-offs):**
+  `pwsh capture.ps1 -ProcessName <exe-basename> -OutDir <evidenceDir> -Surface main-window -Theme obsidian`
+
+Add `-DumpUia` to any mode: writes `<name>.uia.txt` (roles, names,
+automation ids) beside each PNG — Narrator groundwork and route-map
+authoring material in one.
+
+## Pixel sampling
+
+`sample.py` (Pillow, optional dependency) crops a region and walks pixel
+values. Use it whenever a preview-scale judgment call decides a finding —
+downscales lie about fills and halos; pixels do not.
 
 ## Per-theme rounds
 
-One invocation per theme. Switch the app's theme between rounds, re-run
-with the new `-Theme` label. A full multi-theme baseline is N rounds of the
-same checklist.
+One invocation per theme; switch the app's theme between rounds and re-run
+with the new `-Theme` label.
 
-## Known gotchas (learned on 626 Mod Launcher)
+## Field notes (earned on real campaigns)
 
-- Dev/debug builds may version-stamp as 0.1.0.0 and silently hide
-  remote-gated surfaces (minBinaryVersion gates). Build smoke builds with
-  the real version, e.g. `-p:Version=<current>`, or those surfaces vanish
-  from your evidence.
-- After XAML edits, clean `obj/` and `bin/` before rebuilding — stale
-  codegen crashes the app at `Connect()` with InvalidCastException.
-- If the app fails to appear, check its error log (launcher:
-  `app-errors.log`) before blaming the adapter.
-- Windows scale factor affects pixel dimensions; capture the whole round on
+- Popup/dialog template fix-ups race the `Opened` event in both
+  directions — key one-shot hooks off the injected content's own `Loaded`.
+  And verify timing-dependent fixes at least twice; one passing run of a
+  race proves nothing.
+- Stock dialog Title ContentControls pin HorizontalAlignment=Left — a
+  spanning rail needs the pin overridden, not a wider Title.
+- ContentDialog's UIA name derives only from string Titles; element
+  content silently drops the accessible name. Check the `-DumpUia` tree.
+- Interaction states (hover, drag-in-progress, open flyouts, transition
+  frames) are invisible to screenshots. Verify them by code or by
+  sample.py on staged frames — and say which one the evidence is.
+- Dev builds may version-stamp low and silently hide remote-gated
+  surfaces (minBinaryVersion gates) — build with the real version, e.g.
+  `-p:Version=<current>`.
+- After XAML edits, clean `obj/`/`bin/` before rebuilding; check the
+  app's error log if it launches silent.
+- Windows scale factor affects pixel dimensions; capture a whole round on
   one monitor at one scale.
