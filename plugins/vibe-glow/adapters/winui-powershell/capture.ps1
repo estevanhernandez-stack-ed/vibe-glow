@@ -123,7 +123,10 @@ if ($Uia) {
         try {
             $preHwnd = [Native.Win32]::GetForegroundWindow()
             if ($route.invoke) { Invoke-UiaPath $mainEl $route.invoke }
-            $hwnd = [Native.Win32]::GetForegroundWindow()
+            $hwnd = if ($route.invoke) { [Native.Win32]::GetForegroundWindow() } else {
+                Write-Host "note $($route.surface): no invoke — capturing the app's main window"
+                $proc.MainWindowHandle
+            }
             if ($route.invoke -and $hwnd -eq $preHwnd) {
                 Start-Sleep -Milliseconds 700   # slow window: one extra beat
                 $hwnd = [Native.Win32]::GetForegroundWindow()
